@@ -15,10 +15,13 @@ const refs = z.array(z.string());
 export const ClaimSchema = z.object({ title: z.string(), body: z.string(), sourceIds: refs });
 export const SourceSchema = z.object({ id: z.string(), name: z.string(), url: z.string(), kind: z.string(), checkedAt: z.string() });
 export const PriceSchema = z.object({ value: z.number(), date: z.string(), floor: z.string(), sourceIds: refs });
+export const ListingSchema = z.object({ price: z.number(), area: z.number(), checkedAt: z.string(), floor: z.string(), sourceIds: refs });
+export const ReferencePriceSchema = z.object({ kind: z.enum(["매물평균가", "KB시세", "집계최저가"]), value: z.number(), date: z.string(), area: z.number().nullable(), sourceIds: refs });
 export const CandidateSchema = z.object({
   id: z.string(), name: z.string(), region: z.string(), address: z.string(), province: z.enum(["서울", "경기"]),
   area: z.number(), households: z.number().nullable(), builtYear: z.number().nullable(),
   askingMin: z.number().nullable(), askingMax: z.number().nullable(), askingDate: z.string().nullable(), askingSourceIds: refs,
+  listings: z.array(ListingSchema).optional(), referencePrices: z.array(ReferencePriceSchema).optional(),
   trades: z.array(PriceSchema), status: z.enum(["매수검토", "가격대기", "과열", "제외"]),
   investmentScore: z.number().min(0).max(100), livingScore: z.number().min(0).max(100),
   summary: z.string(), tags: z.array(z.string()), commute: z.string(),
@@ -28,7 +31,7 @@ export const AnalysisSchema = z.object({
   market: z.enum(["상승", "조정", "순환매", "판단 유보"]), headline: z.string(), summary: z.string(), summarySourceIds: refs,
   news: z.array(ClaimSchema),
   regions: z.array(z.object({ name: z.string(), investment: z.string(), living: z.string(), momentum: z.enum(["상승", "보합", "조정", "미확인"]), note: z.string(), sourceIds: refs })),
-  scan: z.array(ClaimSchema), candidates: z.array(CandidateSchema),
+  scan: z.array(ClaimSchema), candidates: z.array(CandidateSchema), referenceCandidates: z.array(CandidateSchema).optional(),
   tracking: z.array(ClaimSchema), pickId: z.string().nullable(), pickAnalysis: z.array(ClaimSchema), conclusion: z.string(),
   sources: z.array(SourceSchema), limitations: z.array(z.string()),
 });
@@ -36,11 +39,18 @@ export type Analysis = z.infer<typeof AnalysisSchema>;
 export type Candidate = z.infer<typeof CandidateSchema>;
 export type Source = z.infer<typeof SourceSchema>;
 export type Change = { name: string; area: number; before: number; after: number; percent: number; basis: string; sourceIds: string[] };
+export const UsageSchema = z.object({
+  phase: z.enum(["search", "compare"]), model: z.string(), input: z.number(), output: z.number(),
+  cachedInput: z.number(), reasoning: z.number(), total: z.number(), webSearchCalls: z.number(),
+});
+export type ApiUsage = z.infer<typeof UsageSchema>;
 export type Report = Analysis & {
+  usage?: ApiUsage[];
   id: string; createdAt: string; mode: "demo" | "live"; criteria: Criteria;
   changes: Change[]; coverage: { name: string; status: "완료" | "실패"; note: string }[];
 };
 export const ReportSchema = AnalysisSchema.extend({
+  usage: z.array(UsageSchema).optional(),
   id: z.string(), createdAt: z.string(), mode: z.enum(["demo", "live"]), criteria: CriteriaSchema,
   changes: z.array(z.object({ name: z.string(), area: z.number(), before: z.number(), after: z.number(), percent: z.number(), basis: z.string(), sourceIds: refs })),
   coverage: z.array(z.object({ name: z.string(), status: z.enum(["완료", "실패"]), note: z.string() })),

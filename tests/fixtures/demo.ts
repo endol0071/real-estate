@@ -1,5 +1,5 @@
-import { DEFAULT_CRITERIA, type Candidate, type Criteria, type Report } from "./schema";
-import { eligible, priceChanges } from "./validation";
+import { DEFAULT_CRITERIA, type Candidate, type Criteria, type Report } from "../../lib/schema";
+import { eligible, priceChanges } from "../../lib/validation";
 
 const EXAMPLE_CANDIDATES: Candidate[] = [
   { id: "demo-1", name: "한강 리버포레 (가상)", province: "서울", region: "서울 동작구", address: "서울 동작구 상도동 · 가상 단지", area: 59.98, households: 1080, builtYear: 2018, askingMin: 10.4, askingMax: 11, askingDate: "2026-09-15", askingSourceIds: [], trades: [{ value: 9.7, date: "2026-07-03", floor: "8층", sourceIds: [] }, { value: 9.9, date: "2026-08-12", floor: "12층", sourceIds: [] }, { value: 10.2, date: "2026-09-05", floor: "10층", sourceIds: [] }], status: "매수검토", investmentScore: 87, livingScore: 89, summary: "도심 접근성과 생활 인프라의 균형을 비교하는 예시입니다.", tags: ["역세권", "대단지", "생활 인프라"], commute: "예시 화면에서는 실제 경로를 조회하지 않습니다.", factors: [], risks: ["가상의 단지이며 실제 거래·매물 정보가 아닙니다.", "취득세 등 부대비용은 매매 예산에 포함되지 않습니다."], sourceIds: [] },
